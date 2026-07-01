@@ -12,13 +12,13 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (isAdminAuthed()) router.push("/admin-hidden-portal/dashboard");
+    if (isAdminAuthed()) router.push("/admin/dashboard");
   }, [router]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (loginAdmin(username, password)) {
-      router.push("/admin-hidden-portal/dashboard");
+      router.push("/admin/dashboard");
     } else {
       setError("Username atau password salah.");
     }

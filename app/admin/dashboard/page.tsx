@@ -28,7 +28,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (!isAdminAuthed()) {
-      router.push("/admin-hidden-portal");
+      router.push("/admin");
       return;
     }
     refresh();
@@ -43,7 +43,7 @@ export default function AdminDashboard() {
 
   function handleLogout() {
     logoutAdmin();
-    router.push("/admin-hidden-portal");
+    router.push("/admin");
   }
 
   function startEdit(p: Product) {
