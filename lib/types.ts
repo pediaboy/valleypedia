@@ -15,7 +15,16 @@ export interface Invoice {
   productId: string;
   productName: string;
   amount: number | null;
+  uniqueCode?: number;
+  totalWithCode?: number | null;
   status: "pending" | "paid" | "expired";
   createdAt: string;
   customerNote?: string;
+}
+
+export interface Expense {
+  id: string;
+  description: string;
+  amount: number;
+  createdAt: string;
 }

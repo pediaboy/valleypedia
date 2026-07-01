@@ -3,16 +3,17 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   LogOut, TrendingUp, TrendingDown, Receipt, Package,
-  Plus, Trash2, Pencil, Check, X, Wallet,
+  Plus, Trash2, Pencil, Check, X, Wallet, Wallet2,
 } from "lucide-react";
 import {
   isAdminAuthed, logoutAdmin, getProducts, updateProduct, deleteProduct,
-  addProduct, getInvoices, updateInvoiceStatus, deleteInvoice,
+  addProduct, getInvoices, updateInvoiceStatus, updateInvoiceAmount, deleteInvoice,
+  getExpenses, addExpense, deleteExpense,
   getFinanceSummary, formatRupiah,
 } from "@/lib/store";
-import { Product, Invoice } from "@/lib/types";
+import { Product, Invoice, Expense } from "@/lib/types";
 
-type Tab = "overview" | "invoices" | "products";
+type Tab = "overview" | "invoices" | "expenses" | "products";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -20,11 +21,18 @@ export default function AdminDashboard() {
   const [tab, setTab] = useState<Tab>("overview");
   const [products, setProducts] = useState<Product[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
   const [summary, setSummary] = useState(getFinanceSummary());
-  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [editPrice, setEditPrice] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [newProduct, setNewProduct] = useState({ name: "", category: "", price: "", description: "" });
+
+  const [editingInvoiceId, setEditingInvoiceId] = useState<string | null>(null);
+  const [editInvoiceAmount, setEditInvoiceAmount] = useState("");
+
+  const [newExpense, setNewExpense] = useState({ description: "", amount: "" });
 
   useEffect(() => {
     if (!isAdminAuthed()) {
@@ -38,6 +46,7 @@ export default function AdminDashboard() {
   function refresh() {
     setProducts(getProducts());
     setInvoices(getInvoices());
+    setExpenses(getExpenses());
     setSummary(getFinanceSummary());
   }
 
@@ -46,24 +55,22 @@ export default function AdminDashboard() {
     router.push("/admin");
   }
 
-  function startEdit(p: Product) {
-    setEditingId(p.id);
+  // Products
+  function startEditProduct(p: Product) {
+    setEditingProductId(p.id);
     setEditPrice(p.price?.toString() || "");
   }
-
-  function saveEdit(id: string) {
+  function saveEditProduct(id: string) {
     updateProduct(id, { price: editPrice ? parseInt(editPrice) : null });
-    setEditingId(null);
+    setEditingProductId(null);
     refresh();
   }
-
   function handleDeleteProduct(id: string) {
     if (confirm("Hapus produk ini?")) {
       deleteProduct(id);
       refresh();
     }
   }
-
   function handleAddProduct() {
     if (!newProduct.name || !newProduct.category) return;
     const id = newProduct.name.toLowerCase().replace(/\s+/g, "-") + "-" + Date.now();
@@ -82,14 +89,42 @@ export default function AdminDashboard() {
     refresh();
   }
 
+  // Invoices
   function handleStatusChange(id: string, status: Invoice["status"]) {
     updateInvoiceStatus(id, status);
     refresh();
   }
-
+  function startEditInvoice(inv: Invoice) {
+    setEditingInvoiceId(inv.id);
+    setEditInvoiceAmount((inv.amount ?? "").toString());
+  }
+  function saveEditInvoice(id: string) {
+    updateInvoiceAmount(id, editInvoiceAmount ? parseInt(editInvoiceAmount) : null);
+    setEditingInvoiceId(null);
+    refresh();
+  }
   function handleDeleteInvoice(id: string) {
     if (confirm("Hapus invoice ini?")) {
       deleteInvoice(id);
+      refresh();
+    }
+  }
+
+  // Expenses
+  function handleAddExpense() {
+    if (!newExpense.description || !newExpense.amount) return;
+    addExpense({
+      id: "exp-" + Date.now(),
+      description: newExpense.description,
+      amount: parseInt(newExpense.amount),
+      createdAt: new Date().toISOString(),
+    });
+    setNewExpense({ description: "", amount: "" });
+    refresh();
+  }
+  function handleDeleteExpense(id: string) {
+    if (confirm("Hapus pengeluaran ini?")) {
+      deleteExpense(id);
       refresh();
     }
   }
@@ -112,10 +147,11 @@ export default function AdminDashboard() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-6">
+      <div className="flex gap-2 mb-6 overflow-x-auto">
         {[
           { id: "overview", label: "Overview", icon: Wallet },
           { id: "invoices", label: "Invoice", icon: Receipt },
+          { id: "expenses", label: "Pengeluaran", icon: Wallet2 },
           { id: "products", label: "Produk", icon: Package },
         ].map((t) => {
           const Icon = t.icon;
@@ -123,7 +159,7 @@ export default function AdminDashboard() {
             <button
               key={t.id}
               onClick={() => setTab(t.id as Tab)}
-              className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-medium transition-all ${
+              className={`flex items-center gap-1.5 whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium transition-all ${
                 tab === t.id
                   ? "bg-gradient-to-r from-neon-blue to-neon-cyan text-space-950"
                   : "glass text-slate-400"
@@ -145,23 +181,34 @@ export default function AdminDashboard() {
                 <span className="text-xs font-medium">Pemasukan</span>
               </div>
               <p className="text-2xl font-bold text-white">{formatRupiah(summary.income)}</p>
-              <p className="text-[11px] text-slate-500 mt-1">{summary.paidCount} transaksi lunas</p>
+              <p className="text-[11px] text-slate-500 mt-1">{summary.paidCount} invoice lunas</p>
             </div>
+            <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-5">
+              <div className="flex items-center gap-2 mb-2 text-red-400">
+                <TrendingDown size={16} />
+                <span className="text-xs font-medium">Pengeluaran</span>
+              </div>
+              <p className="text-2xl font-bold text-white">{formatRupiah(summary.outcome)}</p>
+              <p className="text-[11px] text-slate-500 mt-1">{expenses.length} catatan</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
             <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5">
               <div className="flex items-center gap-2 mb-2 text-amber-400">
-                <TrendingDown size={16} />
+                <Receipt size={16} />
                 <span className="text-xs font-medium">Pending</span>
               </div>
               <p className="text-2xl font-bold text-white">{formatRupiah(summary.pending)}</p>
               <p className="text-[11px] text-slate-500 mt-1">{summary.pendingCount} menunggu bayar</p>
             </div>
-          </div>
-          <div className="rounded-2xl glass p-5">
-            <div className="flex items-center gap-2 mb-2 text-slate-400">
-              <Receipt size={16} />
-              <span className="text-xs font-medium">Total Invoice</span>
+            <div className="rounded-2xl glass p-5">
+              <div className="flex items-center gap-2 mb-2 text-neon-cyan">
+                <Wallet size={16} />
+                <span className="text-xs font-medium">Saldo Bersih</span>
+              </div>
+              <p className="text-2xl font-bold text-white">{formatRupiah(summary.net)}</p>
+              <p className="text-[11px] text-slate-500 mt-1">Pemasukan - Pengeluaran</p>
             </div>
-            <p className="text-2xl font-bold text-white">{summary.totalInvoices}</p>
           </div>
         </div>
       )}
@@ -188,7 +235,23 @@ export default function AdminDashboard() {
                     <tr key={inv.id} className="border-b border-white/5">
                       <td className="p-3 font-mono text-xs text-slate-400">{inv.id}</td>
                       <td className="p-3 text-white">{inv.productName}</td>
-                      <td className="p-3">{formatRupiah(inv.amount)}</td>
+                      <td className="p-3">
+                        {editingInvoiceId === inv.id ? (
+                          <div className="flex items-center gap-1.5">
+                            <input
+                              value={editInvoiceAmount}
+                              onChange={(e) => setEditInvoiceAmount(e.target.value)}
+                              className="w-24 rounded-lg bg-white/5 border border-white/10 px-2 py-1 text-xs text-white outline-none"
+                            />
+                            <button onClick={() => saveEditInvoice(inv.id)} className="text-green-400"><Check size={14} /></button>
+                            <button onClick={() => setEditingInvoiceId(null)} className="text-slate-500"><X size={14} /></button>
+                          </div>
+                        ) : (
+                          <button onClick={() => startEditInvoice(inv)} className="flex items-center gap-1.5 hover:text-neon-cyan">
+                            {formatRupiah(inv.totalWithCode ?? inv.amount)} <Pencil size={11} className="text-slate-500" />
+                          </button>
+                        )}
+                      </td>
                       <td className="p-3">
                         <select
                           value={inv.status}
@@ -213,6 +276,54 @@ export default function AdminDashboard() {
                 </tbody>
               </table>
             </div>
+          )}
+        </div>
+      )}
+
+      {/* Expenses */}
+      {tab === "expenses" && (
+        <div className="space-y-3">
+          <div className="rounded-2xl glass p-5 space-y-3">
+            <p className="text-sm font-semibold text-white mb-1">Tambah Pengeluaran</p>
+            <input
+              placeholder="Deskripsi (misal: biaya server)"
+              value={newExpense.description}
+              onChange={(e) => setNewExpense({ ...newExpense, description: e.target.value })}
+              className="w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white outline-none"
+            />
+            <input
+              placeholder="Jumlah (angka saja)"
+              value={newExpense.amount}
+              onChange={(e) => setNewExpense({ ...newExpense, amount: e.target.value })}
+              className="w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white outline-none"
+            />
+            <button
+              onClick={handleAddExpense}
+              className="rounded-lg bg-red-500/20 text-red-400 px-4 py-2 text-sm font-medium"
+            >
+              Simpan Pengeluaran
+            </button>
+          </div>
+
+          {expenses.length === 0 ? (
+            <p className="text-center text-sm text-slate-500 py-6">Belum ada catatan pengeluaran.</p>
+          ) : (
+            expenses.map((exp) => (
+              <div key={exp.id} className="rounded-2xl glass p-4 flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-white">{exp.description}</p>
+                  <p className="text-[11px] text-slate-500">
+                    {new Date(exp.createdAt).toLocaleDateString("id-ID")}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-semibold text-red-400">- {formatRupiah(exp.amount)}</span>
+                  <button onClick={() => handleDeleteExpense(exp.id)} className="text-slate-500 hover:text-red-400">
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+            ))
           )}
         </div>
       )}
@@ -270,22 +381,22 @@ export default function AdminDashboard() {
                 <p className="text-xs text-slate-500">{p.category}</p>
               </div>
               <div className="flex items-center gap-3">
-                {editingId === p.id ? (
+                {editingProductId === p.id ? (
                   <>
                     <input
                       value={editPrice}
                       onChange={(e) => setEditPrice(e.target.value)}
                       className="w-28 rounded-lg bg-white/5 border border-white/10 px-2 py-1.5 text-sm text-white outline-none"
                     />
-                    <button onClick={() => saveEdit(p.id)} className="text-green-400"><Check size={16} /></button>
-                    <button onClick={() => setEditingId(null)} className="text-slate-500"><X size={16} /></button>
+                    <button onClick={() => saveEditProduct(p.id)} className="text-green-400"><Check size={16} /></button>
+                    <button onClick={() => setEditingProductId(null)} className="text-slate-500"><X size={16} /></button>
                   </>
                 ) : (
                   <>
                     <span className="text-sm font-medium text-neon-cyan">
                       {p.priceLabel || formatRupiah(p.price)}
                     </span>
-                    <button onClick={() => startEdit(p)} className="text-slate-500 hover:text-white">
+                    <button onClick={() => startEditProduct(p)} className="text-slate-500 hover:text-white">
                       <Pencil size={14} />
                     </button>
                     <button onClick={() => handleDeleteProduct(p.id)} className="text-slate-500 hover:text-red-400">

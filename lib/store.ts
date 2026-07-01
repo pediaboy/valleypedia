@@ -1,13 +1,14 @@
 "use client";
-import { Product, Invoice } from "./types";
+import { Product, Invoice, Expense } from "./types";
 import { DEFAULT_PRODUCTS } from "./products";
 
 const PRODUCTS_KEY = "vp_products_v1";
 const INVOICES_KEY = "vp_invoices_v1";
+const EXPENSES_KEY = "vp_expenses_v1";
 const AUTH_KEY = "vp_admin_auth";
 
-export function formatRupiah(amount: number | null): string {
-  if (amount === null) return "Menyesuaikan";
+export function formatRupiah(amount: number | null | undefined): string {
+  if (amount === null || amount === undefined) return "Menyesuaikan";
   return "Rp " + amount.toLocaleString("id-ID");
 }
 
@@ -66,6 +67,11 @@ export function generateInvoiceId(): string {
   return `VP-${y}${m}${d}-${rand}`;
 }
 
+export function generateUniqueCode(): number {
+  // 3-digit unique code (100-999) appended to nominal for auto payment matching
+  return Math.floor(Math.random() * 900) + 100;
+}
+
 export function getInvoices(): Invoice[] {
   if (typeof window === "undefined") return [];
   try {
@@ -90,24 +96,67 @@ export function updateInvoiceStatus(id: string, status: Invoice["status"]) {
   return invoices;
 }
 
+export function updateInvoiceAmount(id: string, amount: number | null) {
+  const invoices = getInvoices().map((inv) =>
+    inv.id === id ? { ...inv, amount, totalWithCode: amount !== null ? amount + (inv.uniqueCode || 0) : null } : inv
+  );
+  localStorage.setItem(INVOICES_KEY, JSON.stringify(invoices));
+  return invoices;
+}
+
 export function deleteInvoice(id: string) {
   const invoices = getInvoices().filter((inv) => inv.id !== id);
   localStorage.setItem(INVOICES_KEY, JSON.stringify(invoices));
   return invoices;
 }
 
+// ── Expenses (Pengeluaran) ───────────────────────────────────────────────
+
+export function getExpenses(): Expense[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(EXPENSES_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function addExpense(expense: Expense) {
+  const expenses = [expense, ...getExpenses()];
+  localStorage.setItem(EXPENSES_KEY, JSON.stringify(expenses));
+  return expenses;
+}
+
+export function updateExpense(id: string, updates: Partial<Expense>) {
+  const expenses = getExpenses().map((e) => (e.id === id ? { ...e, ...updates } : e));
+  localStorage.setItem(EXPENSES_KEY, JSON.stringify(expenses));
+  return expenses;
+}
+
+export function deleteExpense(id: string) {
+  const expenses = getExpenses().filter((e) => e.id !== id);
+  localStorage.setItem(EXPENSES_KEY, JSON.stringify(expenses));
+  return expenses;
+}
+
+// ── Finance Summary ──────────────────────────────────────────────────────
+
 export function getFinanceSummary() {
   const invoices = getInvoices();
+  const expenses = getExpenses();
   const income = invoices
     .filter((i) => i.status === "paid")
-    .reduce((sum, i) => sum + (i.amount || 0), 0);
+    .reduce((sum, i) => sum + (i.totalWithCode ?? i.amount ?? 0), 0);
   const pending = invoices
     .filter((i) => i.status === "pending")
-    .reduce((sum, i) => sum + (i.amount || 0), 0);
+    .reduce((sum, i) => sum + (i.totalWithCode ?? i.amount ?? 0), 0);
+  const outcome = expenses.reduce((sum, e) => sum + e.amount, 0);
   return {
     income,
     pending,
-    outcome: 0,
+    outcome,
+    net: income - outcome,
     totalInvoices: invoices.length,
     paidCount: invoices.filter((i) => i.status === "paid").length,
     pendingCount: invoices.filter((i) => i.status === "pending").length,

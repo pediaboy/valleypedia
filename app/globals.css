@@ -59,3 +59,15 @@ body {
   box-shadow: 0 0 30px rgba(34, 211, 238, 0.65);
   transform: translateY(-2px);
 }
+
+@keyframes scroll-x {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-scroll-x {
+  animation: scroll-x 60s linear infinite;
+  width: max-content;
+}
+.animate-scroll-x:hover {
+  animation-play-state: paused;
+}

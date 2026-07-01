@@ -3,8 +3,10 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, ShieldCheck, Clock, CheckCircle2 } from "lucide-react";
-import { getProductBySlug, formatRupiah, generateInvoiceId, createInvoice } from "@/lib/store";
+import { ArrowLeft, ShieldCheck, Clock, CheckCircle2, Info } from "lucide-react";
+import {
+  getProductBySlug, formatRupiah, generateInvoiceId, generateUniqueCode, createInvoice,
+} from "@/lib/store";
 import { Product } from "@/lib/types";
 
 const WHATSAPP_NUMBER = "6283897340112";
@@ -15,6 +17,7 @@ export default function CheckoutPage() {
   const [product, setProduct] = useState<Product | null | undefined>(undefined);
   const [agreed, setAgreed] = useState(false);
   const [invoiceId, setInvoiceId] = useState<string>("");
+  const [uniqueCode, setUniqueCode] = useState<number>(0);
   const [confirmed, setConfirmed] = useState(false);
 
   useEffect(() => {
@@ -22,6 +25,7 @@ export default function CheckoutPage() {
     const p = getProductBySlug(slug);
     setProduct(p);
     setInvoiceId(generateInvoiceId());
+    setUniqueCode(generateUniqueCode());
   }, [params.slug]);
 
   if (product === undefined) {
@@ -36,6 +40,9 @@ export default function CheckoutPage() {
     );
   }
 
+  const hasFixedPrice = product.price !== null;
+  const totalWithCode = hasFixedPrice ? (product.price as number) + uniqueCode : null;
+
   const handleConfirm = () => {
     if (!agreed) return;
 
@@ -44,14 +51,26 @@ export default function CheckoutPage() {
       productId: product.id,
       productName: product.name,
       amount: product.price,
+      uniqueCode: hasFixedPrice ? uniqueCode : undefined,
+      totalWithCode,
       status: "pending",
       createdAt: new Date().toISOString(),
     });
 
     setConfirmed(true);
 
-    const priceText = product.priceLabel || formatRupiah(product.price);
-    const message = `Halo VALLEYPEDIA, saya ingin mengkonfirmasi pembayaran untuk ${product.name} (${priceText}). Berikut adalah detail pesanan saya: ${invoiceId}. Mohon diproses.`;
+    const priceText = product.priceLabel
+      ? product.priceLabel
+      : `${formatRupiah(totalWithCode)} (termasuk kode unik ${uniqueCode})`;
+
+    const message =
+      `Halo VALLEYPEDIA 🌌\n\n` +
+      `Saya ingin mengonfirmasi pembayaran untuk pesanan berikut:\n\n` +
+      `Produk: ${product.name}\n` +
+      `Nomor Invoice: ${invoiceId}\n` +
+      `Total Pembayaran: ${priceText}\n\n` +
+      `Mohon segera diproses setelah pembayaran saya diverifikasi. Terima kasih atas layanannya.`;
+
     const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 
     setTimeout(() => {
@@ -102,15 +121,43 @@ export default function CheckoutPage() {
               SCAN QRIS UNTUK MEMBAYAR
             </p>
 
-            {/* QRIS mockup */}
-            <div className="mx-auto mb-4 flex h-56 w-56 items-center justify-center rounded-2xl border-2 border-slate-200 bg-white p-3">
-              <QRISMockup />
+            {/* QRIS asli */}
+            <div className="mx-auto mb-4 flex h-56 w-56 items-center justify-center rounded-2xl border-2 border-slate-200 bg-white p-2 overflow-hidden">
+              <img
+                src="/images/qris.jpeg"
+                alt="QRIS VALLEYPEDIA"
+                className="h-full w-full object-contain rounded-xl"
+              />
             </div>
 
-            <div className="flex items-center justify-center gap-2 mb-6">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Logo_QRIS.svg/512px-Logo_QRIS.svg.png" alt="QRIS" className="h-6" onError={(e) => (e.currentTarget.style.display = 'none')} />
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Logo_QRIS.svg/512px-Logo_QRIS.svg.png"
+                alt="QRIS"
+                className="h-6"
+                onError={(e) => (e.currentTarget.style.display = "none")}
+              />
               <span className="text-[11px] text-slate-400">Berlaku untuk semua e-wallet & bank</span>
             </div>
+
+            {hasFixedPrice && (
+              <div className="mb-5 rounded-xl bg-blue-50 border border-blue-100 px-4 py-3">
+                <div className="flex items-start gap-2">
+                  <Info size={15} className="text-blue-500 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-xs text-slate-600 leading-relaxed mb-1.5">
+                      Transfer <span className="font-bold text-slate-900">sesuai nominal di bawah ini</span> (sudah termasuk kode unik) agar pembayaran terverifikasi otomatis oleh sistem kami.
+                    </p>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-xl font-bold text-blue-700">{formatRupiah(totalWithCode)}</span>
+                      <span className="text-[11px] text-slate-400">
+                        ({formatRupiah(product.price)} + kode unik {uniqueCode})
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <label className="flex items-start gap-2.5 mb-5 cursor-pointer select-none">
               <input
@@ -121,7 +168,9 @@ export default function CheckoutPage() {
               />
               <span className="text-xs text-slate-600 leading-relaxed">
                 Saya menyetujui{" "}
-                <span className="font-semibold text-slate-800">Syarat dan Ketentuan</span>{" "}
+                <Link href="/snk" target="_blank" className="font-semibold text-blue-600 underline">
+                  Syarat dan Ketentuan
+                </Link>{" "}
                 transaksi VALLEYPEDIA dan memahami bahwa pesanan diproses setelah pembayaran dikonfirmasi.
               </span>
             </label>
@@ -154,45 +203,5 @@ export default function CheckoutPage() {
         </motion.div>
       </div>
     </main>
-  );
-}
-
-function QRISMockup() {
-  // Simple deterministic-looking QR mockup pattern (visual only)
-  const size = 21;
-  const cells = [];
-  let seed = 42;
-  const rand = () => {
-    seed = (seed * 9301 + 49297) % 233280;
-    return seed / 233280;
-  };
-  for (let i = 0; i < size * size; i++) {
-    cells.push(rand() > 0.55);
-  }
-  return (
-    <svg viewBox={`0 0 ${size} ${size}`} className="h-full w-full">
-      <rect width={size} height={size} fill="white" />
-      {cells.map((filled, i) => {
-        const x = i % size;
-        const y = Math.floor(i / size);
-        // finder patterns corners
-        const inFinder =
-          (x < 3 && y < 3) ||
-          (x > size - 4 && y < 3) ||
-          (x < 3 && y > size - 4);
-        if (inFinder) return null;
-        return filled ? (
-          <rect key={i} x={x} y={y} width={1} height={1} fill="#0A192F" />
-        ) : null;
-      })}
-      {/* Finder patterns */}
-      {[[0, 0], [size - 7, 0], [0, size - 7]].map(([fx, fy], idx) => (
-        <g key={idx}>
-          <rect x={fx} y={fy} width={7} height={7} fill="#0A192F" />
-          <rect x={fx + 1} y={fy + 1} width={5} height={5} fill="white" />
-          <rect x={fx + 2} y={fy + 2} width={3} height={3} fill="#0A192F" />
-        </g>
-      ))}
-    </svg>
   );
 }

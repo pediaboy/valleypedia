@@ -2,11 +2,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Shield, Zap, Sparkles } from "lucide-react";
-import { getProducts, formatRupiah } from "@/lib/store";
+import { ArrowRight, Shield, Zap, Sparkles, Gamepad2 } from "lucide-react";
+import { getProducts } from "@/lib/store";
 import { Product } from "@/lib/types";
 import AnimatedSection from "@/components/AnimatedSection";
 import ProductCard from "@/components/ProductCard";
+import Testimonials from "@/components/Testimonials";
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -22,7 +23,10 @@ export default function Home() {
       {/* Hero */}
       <section className="relative overflow-hidden px-6 pt-20 pb-16 text-center">
         <div className="absolute inset-0 -z-10 opacity-40">
-          <div className="absolute left-1/2 top-0 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-neon-blue/20 blur-[120px]" />
+          <div className="absolute left-1/2 top-0 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-neon-blue/20 blur-[120px] animate-pulse-slow" />
+        </div>
+        <div className="absolute inset-0 -z-10 opacity-25">
+          <div className="absolute right-0 bottom-0 h-[350px] w-[350px] rounded-full bg-neon-cyan/20 blur-[100px]" />
         </div>
 
         <motion.div
@@ -31,8 +35,8 @@ export default function Home() {
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           className="inline-flex items-center gap-2 rounded-full glass px-4 py-1.5 mb-6 shadow-glow"
         >
-          <Sparkles size={14} className="text-neon-cyan" />
-          <span className="text-xs font-medium text-slate-300">Akses Premium Terpercaya</span>
+          <Gamepad2 size={14} className="text-neon-cyan" />
+          <span className="text-xs font-medium text-slate-300">Dipercaya Ratusan Player Mobile Legend</span>
         </motion.div>
 
         <motion.h1
@@ -51,20 +55,27 @@ export default function Home() {
           transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
           className="mx-auto max-w-md text-slate-400 text-base leading-relaxed mb-8"
         >
-          Ekosistem akses digital premium — jaringan stabil, VPN aman,
-          dan tools eksklusif untuk kebutuhan profesional Anda.
+          Ekosistem akses digital premium buat kebutuhan Mobile Legend kamu —
+          jaringan stabil anti-delay, VPN aman, dan tools eksklusif biar push rank makin lancar.
         </motion.p>
 
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          className="flex items-center justify-center gap-3"
         >
           <Link
             href="/products"
             className="btn-glow inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-neon-blue to-neon-cyan px-7 py-3.5 text-sm font-semibold text-space-950"
           >
             Jelajahi Produk <ArrowRight size={16} />
+          </Link>
+          <Link
+            href="/snk"
+            className="glass inline-flex items-center gap-2 rounded-xl px-6 py-3.5 text-sm font-medium text-slate-300 hover:text-white transition-colors"
+          >
+            Kenapa Kami?
           </Link>
         </motion.div>
       </section>
@@ -92,7 +103,7 @@ export default function Home() {
       </AnimatedSection>
 
       {/* Featured Products */}
-      <section className="px-6 pb-10">
+      <section className="px-6 pb-16">
         <AnimatedSection className="mb-6 flex items-center justify-between max-w-5xl mx-auto">
           <h2 className="text-xl font-bold text-white">Produk Unggulan</h2>
           <Link href="/products" className="text-sm text-neon-cyan flex items-center gap-1 hover:gap-2 transition-all">
@@ -107,8 +118,19 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Testimonials */}
+      <section className="pb-16">
+        <AnimatedSection className="px-6 mb-6 max-w-5xl mx-auto">
+          <h2 className="text-xl font-bold text-white mb-1.5">Apa Kata Mereka</h2>
+          <p className="text-sm text-slate-400">30+ transaksi nyata dari pelanggan VALLEYPEDIA</p>
+        </AnimatedSection>
+        <AnimatedSection delay={0.1}>
+          <Testimonials />
+        </AnimatedSection>
+      </section>
+
       {/* CTA */}
-      <AnimatedSection className="px-6 py-10">
+      <AnimatedSection className="px-6 py-4">
         <div className="mx-auto max-w-2xl rounded-3xl glass p-10 text-center shadow-glow">
           <h3 className="text-2xl font-bold text-white mb-3">
             Butuh Bantuan Memilih Paket?

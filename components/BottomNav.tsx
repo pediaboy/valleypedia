@@ -1,11 +1,12 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, LayoutGrid, MessageCircle } from "lucide-react";
+import { Home, LayoutGrid, Info, MessageCircle } from "lucide-react";
 
 const navItems = [
   { href: "/", label: "Home", icon: Home },
   { href: "/products", label: "Produk", icon: LayoutGrid },
+  { href: "/snk", label: "Info", icon: Info },
   { href: "https://wa.me/6283897340112", label: "Kontak", icon: MessageCircle, external: true },
 ];
 
@@ -18,7 +19,7 @@ export default function BottomNav() {
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = !item.external && pathname === item.href;
-          const commonClasses = `flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-xl transition-all duration-300 ${
+          const commonClasses = `flex flex-col items-center justify-center gap-1 px-3.5 py-2 rounded-xl transition-all duration-300 ${
             active
               ? "bg-neon-blue/20 text-neon-cyan shadow-glow-cyan"
               : "text-slate-400 hover:text-neon-cyan hover:bg-white/5"
@@ -32,14 +33,14 @@ export default function BottomNav() {
                 rel="noopener noreferrer"
                 className={commonClasses}
               >
-                <Icon size={20} strokeWidth={2} />
+                <Icon size={19} strokeWidth={2} />
                 <span className="text-[10px] font-medium">{item.label}</span>
               </a>
             );
           }
           return (
             <Link key={item.href} href={item.href} className={commonClasses}>
-              <Icon size={20} strokeWidth={2} />
+              <Icon size={19} strokeWidth={2} />
               <span className="text-[10px] font-medium">{item.label}</span>
             </Link>
           );
