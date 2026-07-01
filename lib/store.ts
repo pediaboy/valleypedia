@@ -6,6 +6,7 @@ const PRODUCTS_KEY = "vp_products_v1";
 const INVOICES_KEY = "vp_invoices_v1";
 const EXPENSES_KEY = "vp_expenses_v1";
 const AUTH_KEY = "vp_admin_auth";
+const ADJUSTMENTS_KEY = "vp_finance_adjustments_v1";
 
 export function formatRupiah(amount: number | null | undefined): string {
   if (amount === null || amount === undefined) return "Menyesuaikan";
@@ -140,22 +141,80 @@ export function deleteExpense(id: string) {
   return expenses;
 }
 
+// ── Finance Adjustments (manual +/- on top of auto-computed totals) ──────
+
+interface FinanceAdjustments {
+  income: number; // manual add/subtract applied to Pemasukan
+  outcome: number; // manual add/subtract applied to Pengeluaran
+}
+
+export function getAdjustments(): FinanceAdjustments {
+  if (typeof window === "undefined") return { income: 0, outcome: 0 };
+  try {
+    const raw = localStorage.getItem(ADJUSTMENTS_KEY);
+    return raw ? JSON.parse(raw) : { income: 0, outcome: 0 };
+  } catch {
+    return { income: 0, outcome: 0 };
+  }
+}
+
+export function setAdjustments(adjustments: FinanceAdjustments) {
+  localStorage.setItem(ADJUSTMENTS_KEY, JSON.stringify(adjustments));
+}
+
+// Adjust Pemasukan by a delta (positive to add, negative to subtract)
+export function adjustIncome(delta: number) {
+  const adj = getAdjustments();
+  adj.income += delta;
+  setAdjustments(adj);
+  return adj;
+}
+
+// Adjust Pengeluaran by a delta (positive to add, negative to subtract)
+export function adjustOutcome(delta: number) {
+  const adj = getAdjustments();
+  adj.outcome += delta;
+  setAdjustments(adj);
+  return adj;
+}
+
+// Directly set Pemasukan to an exact figure (computed as a delta under the hood)
+export function setIncomeTotal(target: number, autoComputedIncome: number) {
+  const adj = getAdjustments();
+  adj.income = target - autoComputedIncome;
+  setAdjustments(adj);
+  return adj;
+}
+
+// Directly set Pengeluaran to an exact figure (computed as a delta under the hood)
+export function setOutcomeTotal(target: number, autoComputedOutcome: number) {
+  const adj = getAdjustments();
+  adj.outcome = target - autoComputedOutcome;
+  setAdjustments(adj);
+  return adj;
+}
+
 // ── Finance Summary ──────────────────────────────────────────────────────
 
 export function getFinanceSummary() {
   const invoices = getInvoices();
   const expenses = getExpenses();
-  const income = invoices
+  const adjustments = getAdjustments();
+  const autoIncome = invoices
     .filter((i) => i.status === "paid")
     .reduce((sum, i) => sum + (i.totalWithCode ?? i.amount ?? 0), 0);
   const pending = invoices
     .filter((i) => i.status === "pending")
     .reduce((sum, i) => sum + (i.totalWithCode ?? i.amount ?? 0), 0);
-  const outcome = expenses.reduce((sum, e) => sum + e.amount, 0);
+  const autoOutcome = expenses.reduce((sum, e) => sum + e.amount, 0);
+  const income = autoIncome + adjustments.income;
+  const outcome = autoOutcome + adjustments.outcome;
   return {
     income,
+    autoIncome,
     pending,
     outcome,
+    autoOutcome,
     net: income - outcome,
     totalInvoices: invoices.length,
     paidCount: invoices.filter((i) => i.status === "paid").length,

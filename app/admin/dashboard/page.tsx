@@ -9,7 +9,7 @@ import {
   isAdminAuthed, logoutAdmin, getProducts, updateProduct, deleteProduct,
   addProduct, getInvoices, updateInvoiceStatus, updateInvoiceAmount, deleteInvoice,
   getExpenses, addExpense, deleteExpense,
-  getFinanceSummary, formatRupiah,
+  getFinanceSummary, formatRupiah, setIncomeTotal, setOutcomeTotal,
 } from "@/lib/store";
 import { Product, Invoice, Expense } from "@/lib/types";
 
@@ -33,6 +33,11 @@ export default function AdminDashboard() {
   const [editInvoiceAmount, setEditInvoiceAmount] = useState("");
 
   const [newExpense, setNewExpense] = useState({ description: "", amount: "" });
+
+  const [editingIncome, setEditingIncome] = useState(false);
+  const [editIncomeValue, setEditIncomeValue] = useState("");
+  const [editingOutcome, setEditingOutcome] = useState(false);
+  const [editOutcomeValue, setEditOutcomeValue] = useState("");
 
   useEffect(() => {
     if (!isAdminAuthed()) {
@@ -129,6 +134,28 @@ export default function AdminDashboard() {
     }
   }
 
+  // Manual finance adjustments
+  function startEditIncome() {
+    setEditIncomeValue(summary.income.toString());
+    setEditingIncome(true);
+  }
+  function saveEditIncome() {
+    const target = parseInt(editIncomeValue) || 0;
+    setIncomeTotal(target, summary.autoIncome);
+    setEditingIncome(false);
+    refresh();
+  }
+  function startEditOutcome() {
+    setEditOutcomeValue(summary.outcome.toString());
+    setEditingOutcome(true);
+  }
+  function saveEditOutcome() {
+    const target = parseInt(editOutcomeValue) || 0;
+    setOutcomeTotal(target, summary.autoOutcome);
+    setEditingOutcome(false);
+    refresh();
+  }
+
   if (!ready) return <main className="px-6 pt-20 text-center text-slate-500">Memuat...</main>;
 
   return (
@@ -176,22 +203,67 @@ export default function AdminDashboard() {
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="rounded-2xl border border-green-500/20 bg-green-500/5 p-5">
-              <div className="flex items-center gap-2 mb-2 text-green-400">
-                <TrendingUp size={16} />
-                <span className="text-xs font-medium">Pemasukan</span>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2 text-green-400">
+                  <TrendingUp size={16} />
+                  <span className="text-xs font-medium">Pemasukan</span>
+                </div>
+                {!editingIncome && (
+                  <button onClick={startEditIncome} className="text-slate-500 hover:text-green-400">
+                    <Pencil size={12} />
+                  </button>
+                )}
               </div>
-              <p className="text-2xl font-bold text-white">{formatRupiah(summary.income)}</p>
+              {editingIncome ? (
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="number"
+                    value={editIncomeValue}
+                    onChange={(e) => setEditIncomeValue(e.target.value)}
+                    autoFocus
+                    className="w-full rounded-lg bg-white/5 border border-white/10 px-2 py-1.5 text-sm text-white outline-none"
+                  />
+                  <button onClick={saveEditIncome} className="text-green-400 shrink-0"><Check size={16} /></button>
+                  <button onClick={() => setEditingIncome(false)} className="text-slate-500 shrink-0"><X size={16} /></button>
+                </div>
+              ) : (
+                <p className="text-2xl font-bold text-white">{formatRupiah(summary.income)}</p>
+              )}
               <p className="text-[11px] text-slate-500 mt-1">{summary.paidCount} invoice lunas</p>
             </div>
             <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-5">
-              <div className="flex items-center gap-2 mb-2 text-red-400">
-                <TrendingDown size={16} />
-                <span className="text-xs font-medium">Pengeluaran</span>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2 text-red-400">
+                  <TrendingDown size={16} />
+                  <span className="text-xs font-medium">Pengeluaran</span>
+                </div>
+                {!editingOutcome && (
+                  <button onClick={startEditOutcome} className="text-slate-500 hover:text-red-400">
+                    <Pencil size={12} />
+                  </button>
+                )}
               </div>
-              <p className="text-2xl font-bold text-white">{formatRupiah(summary.outcome)}</p>
+              {editingOutcome ? (
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="number"
+                    value={editOutcomeValue}
+                    onChange={(e) => setEditOutcomeValue(e.target.value)}
+                    autoFocus
+                    className="w-full rounded-lg bg-white/5 border border-white/10 px-2 py-1.5 text-sm text-white outline-none"
+                  />
+                  <button onClick={saveEditOutcome} className="text-green-400 shrink-0"><Check size={16} /></button>
+                  <button onClick={() => setEditingOutcome(false)} className="text-slate-500 shrink-0"><X size={16} /></button>
+                </div>
+              ) : (
+                <p className="text-2xl font-bold text-white">{formatRupiah(summary.outcome)}</p>
+              )}
               <p className="text-[11px] text-slate-500 mt-1">{expenses.length} catatan</p>
             </div>
           </div>
+          <p className="text-[11px] text-slate-600 -mt-2">
+            Tips: klik ikon pensil buat set nominal manual (nambah/ngurangin total).
+          </p>
           <div className="grid grid-cols-2 gap-4">
             <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5">
               <div className="flex items-center gap-2 mb-2 text-amber-400">
