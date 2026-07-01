@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { getProducts } from "@/lib/store";
 import { Product } from "@/lib/types";
-import { CATEGORIES } from "@/lib/products";
+import { CATEGORY_DESCRIPTIONS } from "@/lib/products";
 import AnimatedSection from "@/components/AnimatedSection";
 import ProductCard from "@/components/ProductCard";
 
@@ -29,7 +29,7 @@ export default function ProductsPage() {
         </p>
       </AnimatedSection>
 
-      <AnimatedSection className="max-w-5xl mx-auto mb-8 flex gap-2 overflow-x-auto pb-2" delay={0.05}>
+      <AnimatedSection className="max-w-5xl mx-auto mb-3 flex gap-2 overflow-x-auto pb-2" delay={0.05}>
         {categories.map((cat) => (
           <button
             key={cat}
@@ -43,6 +43,12 @@ export default function ProductsPage() {
             {cat}
           </button>
         ))}
+      </AnimatedSection>
+
+      <AnimatedSection className="max-w-5xl mx-auto mb-8" delay={0.08}>
+        <p className="text-xs text-slate-500 leading-relaxed">
+          {CATEGORY_DESCRIPTIONS[activeCategory] || "Pilih produk yang sesuai kebutuhan lu."}
+        </p>
       </AnimatedSection>
 
       <div className="mx-auto grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

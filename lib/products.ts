@@ -8,12 +8,12 @@ export const DEFAULT_PRODUCTS: Product[] = [
     category: "Internet",
     price: 20000,
     description:
-      "Akses esensial dengan performa stabil untuk kebutuhan dasar digital Anda.",
+      "Paket harian buat yang penting koneksi lancar tanpa keluar budget gede. Cocok buat push rank santai atau sekadar chat & scroll.",
     features: [
-      "Kecepatan stabil untuk pemakaian harian",
-      "Aktivasi instan setelah pembayaran",
-      "Cocok untuk browsing & chat ringan",
-      "Dukungan teknis dasar",
+      "Lancar buat pemakaian sehari-hari",
+      "Aktif langsung abis bayar, ga nunggu lama",
+      "Pas buat main santai atau chatan",
+      "Tinggal WA admin kalo ada kendala",
     ],
     icon: "Wifi",
   },
@@ -24,12 +24,12 @@ export const DEFAULT_PRODUCTS: Product[] = [
     category: "Internet",
     price: 50000,
     description:
-      "Kecepatan tinggi dan prioritas jaringan utama, dirancang khusus untuk pengalaman tanpa hambatan.",
+      "Ini yang paling laris. Jalur prioritas jadi delay nyaris ga kerasa, enak buat push rank atau streaming barengan tim.",
     features: [
-      "Prioritas jalur jaringan utama",
-      "Kecepatan tinggi tanpa throttling",
-      "Stabilitas untuk streaming & gaming",
-      "Dukungan teknis prioritas",
+      "Jalur prioritas, ga rebutan sama yang lain",
+      "Kenceng stabil, ga naik turun",
+      "Enak dipake mabar atau streaming",
+      "Admin gercep kalo ada masalah",
     ],
     icon: "Gauge",
   },
@@ -40,12 +40,12 @@ export const DEFAULT_PRODUCTS: Product[] = [
     category: "Internet",
     price: 150000,
     description:
-      "Kasta tertinggi dengan fitur eksklusif, anti-delay, dan tingkat privasi maksimal untuk profesional.",
+      "Kelas paling atas yang kita punya. Buat yang serius push rank atau grinding lama tiap hari, ini pilihan paling worth it.",
     features: [
-      "Kelas jaringan tertinggi (anti-delay)",
-      "Privasi & enkripsi maksimal",
-      "Prioritas dukungan 24/7",
-      "Akses fitur eksklusif VIP",
+      "Kelas tertinggi, delay nyaris nol",
+      "Privasi dijaga ketat",
+      "Prioritas dibantu kapan aja",
+      "Akses fitur khusus member VIP",
     ],
     icon: "ShieldCheck",
   },
@@ -56,12 +56,12 @@ export const DEFAULT_PRODUCTS: Product[] = [
     category: "VPN",
     price: 10000,
     description:
-      "Proteksi identitas digital komprehensif dan akses server global tanpa batas selama 1 bulan.",
+      "Buat yang mau browsing aman atau buka yang keblokir tanpa was-was IP ketauan. Aktif sebulan penuh, gampang settingnya.",
     features: [
-      "Enkripsi tingkat militer",
-      "Akses server global tanpa batas",
-      "Sembunyikan IP & lokasi asli",
-      "Masa aktif 1 bulan penuh",
+      "Enkripsi kelas atas, data aman",
+      "Bebas pilih server dari negara manapun",
+      "IP asli disembunyiin total",
+      "Aktif full 1 bulan sejak dipakai",
     ],
     icon: "Lock",
   },
@@ -71,14 +71,14 @@ export const DEFAULT_PRODUCTS: Product[] = [
     name: "DK / Cheat",
     category: "Tools",
     price: null,
-    priceLabel: "Harga menyesuaikan masa trial",
+    priceLabel: "Harga nego sesuai durasi",
     description:
-      "Solusi bypass premium dengan pembaruan real-time dan keamanan sistem terenkripsi.",
+      "Tools bantuan yang selalu di-update ngikutin patch terbaru biar tetep aman dipake. Bisa nyoba trial dulu sebelum lanjut.",
     features: [
-      "Update real-time mengikuti versi terbaru",
-      "Sistem keamanan terenkripsi",
-      "Trial fleksibel sesuai kebutuhan",
-      "Support konsultasi langsung",
+      "Update ngikutin versi game terbaru",
+      "Dijaga aman, minim resiko kena report",
+      "Bisa trial dulu sesuai kebutuhan",
+      "Tinggal chat admin buat konsultasi",
     ],
     icon: "Cpu",
   },
@@ -89,12 +89,12 @@ export const DEFAULT_PRODUCTS: Product[] = [
     category: "Automation",
     price: 25000,
     description:
-      "Skrip otomatisasi efisien, ringan, dan sangat responsif untuk optimalisasi tugas Anda.",
+      "Script otomatis yang ringan dijalanin, cocok buat yang males kerja manual berulang-ulang. Tinggal setting sekali, jalan sendiri.",
     features: [
-      "Kapasitas hingga 50 line sekaligus",
-      "Ringan & hemat resource",
-      "Respons cepat dan stabil",
-      "Dokumentasi setup disertakan",
+      "Bisa handle sampe 50 line sekaligus",
+      "Ringan, ga makan resource gede",
+      "Responnya cepet, ga nge-lag",
+      "Panduan setting udah disertain",
     ],
     icon: "Bot",
   },
@@ -105,16 +105,24 @@ export const DEFAULT_PRODUCTS: Product[] = [
     category: "Internet",
     price: 30000,
     description:
-      "Paket komunal dengan stabilitas server tingkat tinggi yang cocok untuk sesi kolaboratif.",
+      "Paket buat mabar bareng squad. Server-nya stabil dipake rame-rame, harganya juga lebih hemat per orang.",
     features: [
-      "Stabilitas server tingkat tinggi",
-      "Cocok untuk pemakaian bersama/tim",
-      "Kapasitas jaringan lebih besar",
-      "Harga lebih efisien per sesi",
+      "Stabil meski dipake rame-rame",
+      "Cocok buat squad atau komunitas",
+      "Kapasitas jaringan lebih gede",
+      "Lebih hemat dibanding beli satuan",
     ],
     icon: "Users",
   },
 ];
+
+export const CATEGORY_DESCRIPTIONS: Record<string, string> = {
+  Semua: "Semua produk yang kita punya, tinggal pilih sesuai kebutuhan lu.",
+  Internet: "Paket RW buat koneksi stabil push rank tanpa delay, dari harian sampe kelas VIP.",
+  VPN: "Buat browsing aman, privasi terjaga, dan buka akses yang keblokir.",
+  Tools: "Tools bantuan trusted yang rutin di-update biar tetep aman dipake.",
+  Automation: "Script otomatis biar kerjaan berulang jadi lebih ringan dan cepet.",
+};
 
 export const CATEGORIES = Array.from(
   new Set(DEFAULT_PRODUCTS.map((p) => p.category))

@@ -55,8 +55,8 @@ export default function Home() {
           transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
           className="mx-auto max-w-md text-slate-400 text-base leading-relaxed mb-8"
         >
-          Ekosistem akses digital premium buat kebutuhan Mobile Legend kamu —
-          jaringan stabil anti-delay, VPN aman, dan tools eksklusif biar push rank makin lancar.
+          Capek koneksi ngelag pas lagi war? Di VALLEYPEDIA lengkap — RW anti delay,
+          VPN buat jaga privasi, sampe tools support biar mabar makin nyaman. Udah dipake banyak orang, tinggal gas.
         </motion.p>
 
         <motion.div
@@ -133,10 +133,10 @@ export default function Home() {
       <AnimatedSection className="px-6 py-4">
         <div className="mx-auto max-w-2xl rounded-3xl glass p-10 text-center shadow-glow">
           <h3 className="text-2xl font-bold text-white mb-3">
-            Butuh Bantuan Memilih Paket?
+            Bingung Mau Pilih yang Mana?
           </h3>
           <p className="text-slate-400 text-sm mb-6">
-            Tim kami siap membantu Anda menemukan solusi yang tepat.
+            Chat aja langsung, nanti dibantu carikan paket yang paling pas buat kebutuhan lu.
           </p>
           <a
             href="https://wa.me/6283897340112"

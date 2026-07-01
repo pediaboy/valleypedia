@@ -71,3 +71,21 @@ body {
 .animate-scroll-x:hover {
   animation-play-state: paused;
 }
+
+@keyframes nebula-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(60px, 40px) scale(1.15); }
+  66% { transform: translate(-30px, 70px) scale(0.9); }
+}
+@keyframes nebula-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-70px, -50px) scale(1.2); }
+}
+@keyframes nebula-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  40% { transform: translate(50px, -60px) scale(1.1); }
+  70% { transform: translate(-40px, -20px) scale(0.95); }
+}
+.animate-nebula-1 { animation: nebula-1 22s ease-in-out infinite; }
+.animate-nebula-2 { animation: nebula-2 26s ease-in-out infinite; }
+.animate-nebula-3 { animation: nebula-3 30s ease-in-out infinite; }
