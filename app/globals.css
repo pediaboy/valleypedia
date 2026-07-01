@@ -6,13 +6,9 @@
 }
 
 html, body {
-  background-color: #050B14;
+  background-color: #020509;
   color: #E5F2FF;
   scroll-behavior: smooth;
-}
-
-body {
-  background: radial-gradient(ellipse 1200px 800px at 50% -10%, #0F213D 0%, #050B14 55%, #020509 100%);
   min-height: 100vh;
 }
 
@@ -49,6 +45,15 @@ body {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  filter: drop-shadow(0 0 18px rgba(34, 211, 238, 0.45));
+}
+
+.brand-wordmark {
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 40px rgba(56, 189, 248, 0.35);
+}
+.brand-wordmark .brand-valley {
+  text-shadow: 0 0 30px rgba(255, 255, 255, 0.25);
 }
 
 .btn-glow {

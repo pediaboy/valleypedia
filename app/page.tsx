@@ -43,11 +43,19 @@ export default function Home() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          className="text-4xl md:text-6xl font-bold tracking-tight mb-4"
+          className="brand-wordmark text-5xl md:text-7xl font-extrabold tracking-tight mb-1 uppercase"
         >
-          <span className="text-white">VALLEY</span>
+          <span className="brand-valley text-white">VALLEY</span>
           <span className="text-gradient">PEDIA</span>
         </motion.h1>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.7, delay: 0.15 }}
+          className="text-[11px] tracking-[0.35em] text-neon-cyan/70 font-medium mb-5 uppercase"
+        >
+          Premium Digital Access
+        </motion.p>
 
         <motion.p
           initial={{ opacity: 0, y: 24 }}

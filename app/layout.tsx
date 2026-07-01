@@ -22,8 +22,12 @@ export default function RootLayout({
     <html lang="id">
       <body className={`${geistSans.variable} antialiased font-sans`}>
         <StarField />
-        <div className="min-h-screen pb-28">{children}</div>
-        <BottomNav />
+        <div className="relative pb-28" style={{ zIndex: 1 }}>
+          {children}
+        </div>
+        <div className="relative" style={{ zIndex: 50 }}>
+          <BottomNav />
+        </div>
       </body>
     </html>
   );
