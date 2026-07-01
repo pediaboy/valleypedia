@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  background-color: #050B14;
+  color: #E5F2FF;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: radial-gradient(ellipse 1200px 800px at 50% -10%, #0F213D 0%, #050B14 55%, #020509 100%);
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #050B14; }
+::-webkit-scrollbar-thumb { background: #15304F; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #1E4166; }
+
+.glass {
+  background: rgba(10, 25, 47, 0.55);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(56, 189, 248, 0.15);
+}
+
+.glass-nav {
+  background: rgba(5, 11, 20, 0.65);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border-top: 1px solid rgba(56, 189, 248, 0.18);
+}
+
+.card-glow {
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.card-glow:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.35), 0 0 55px rgba(34, 211, 238, 0.18);
+  border-color: rgba(34, 211, 238, 0.5);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #7DD3FC 0%, #38BDF8 45%, #22D3EE 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.btn-glow {
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.4);
+  transition: all 0.25s ease;
+}
+.btn-glow:hover {
+  box-shadow: 0 0 30px rgba(34, 211, 238, 0.65);
+  transform: translateY(-2px);
+}
